@@ -61,8 +61,6 @@ post_build:
     - echo "Running SonarQube analysis..."
     - sonar-scanner -Dsonar.projectKey=swiggy -Dsonar.sources=. -Dsonar.host.url=http://$SONAR_SERVER:9000/ -Dsonar.login=$SONAR_TOKEN
     - echo "Uploading Trivy scan report to S3..."
-    - cd ../..
-    - ls -l trivyimage.txt
     - aws s3 cp trivyimage.txt s3://my-ews-baket19090/
     # - aws ses send-email --from "madithati123@gmail.com" --to "madithatisreedhar123@gmail.com" --subject "CodeBuild Status: $CODEBUILD_BUILD_ID" --text "Build status: $CODEBUILD_BUILD_STATUS" --region "ap-south-1"
 
