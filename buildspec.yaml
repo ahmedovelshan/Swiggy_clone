@@ -39,6 +39,7 @@ phases:
 
       
       - unzip awscliv2.zip
+      - chmod +x ./aws/install
       - sudo ./aws/install
       - echo "Configuring AWS CLI..."
       
