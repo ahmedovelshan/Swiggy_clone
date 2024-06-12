@@ -44,6 +44,7 @@ phases:
     commands:
       - echo "Performing Trivy image scan after building the image..."
       - trivy image "$DOCKER_REGISTRY_URL/$DOCKER_REGISTRY_USERNAME/swiggy:latest" >> trivyimage.txt
+      - aws s3 cp ../../trivyimage.txt s3://my-ews-baket19090/
       - echo "Running OWASP Dependency-Check scan..."
       - cd dependency-check/bin
       - ./dependency-check.sh --scan . --format ALL
