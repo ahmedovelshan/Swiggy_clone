@@ -35,12 +35,11 @@ phases:
       - export PATH=$SONAR_SCANNER_HOME/bin:$PATH
       - export SONAR_SCANNER_OPTS="-server"
       - echo "Installing AWS CLI..."
-      - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-
       
+      - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
       - unzip awscliv2.zip
       - chmod +x ./aws/install
-      - sudo ./aws/install
+      - sudo ./aws/install --update
       - echo "Configuring AWS CLI..."
       
       - export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
