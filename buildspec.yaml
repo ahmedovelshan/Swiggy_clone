@@ -40,18 +40,32 @@ phases:
       - docker build -t "$DOCKER_REGISTRY_URL/$DOCKER_REGISTRY_USERNAME/swiggy:latest" .
       - docker push "$DOCKER_REGISTRY_URL/$DOCKER_REGISTRY_USERNAME/swiggy:latest"
 
-  post_build:
-    commands:
-      - echo "Performing Trivy image scan after building the image..."
-      - trivy image "$DOCKER_REGISTRY_URL/$DOCKER_REGISTRY_USERNAME/swiggy:latest" >> trivyimage.txt
-      - aws s3 cp ../../trivyimage.txt s3://my-ews-baket19090/
-      - echo "Running OWASP Dependency-Check scan..."
-      - cd dependency-check/bin
-      - ./dependency-check.sh --scan . --format ALL
-      - echo "Build completed successfully!"
-      - echo "Running SonarQube analysis..."
-      - sonar-scanner -Dsonar.projectKey=swiggy -Dsonar.sources=. -Dsonar.host.url=http://$SONAR_SERVER:9000/ -Dsonar.login=$SONAR_TOKEN
-     # - aws ses send-email --from "madithati123@gmail.com" --to "madithatisreedhar123@gmail.com" --subject "CodeBuild Status: $CODEBUILD_BUILD_ID" --text "Build status: $CODEBUILD_BUILD_STATUS" --region "ap-south-1"
+post_build:
+  commands:
+    - echo "Installing AWS CLI..."
+    - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+    - unzip awscliv2.zip
+    - sudo ./aws/install
+
+    - echo "Configuring AWS CLI..."
+    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+    - aws configure set default.region $AWS_DEFAULT_REGION
+
+    - echo "Performing Trivy image scan after building the image..."
+    - trivy image "$DOCKER_REGISTRY_URL/$DOCKER_REGISTRY_USERNAME/swiggy:latest" >> trivyimage.txt
+    - echo "Running OWASP Dependency-Check scan..."
+    - cd dependency-check/bin
+    - ./dependency-check.sh --scan . --format ALL
+    - echo "Build completed successfully!"
+    - echo "Running SonarQube analysis..."
+    - sonar-scanner -Dsonar.projectKey=swiggy -Dsonar.sources=. -Dsonar.host.url=http://$SONAR_SERVER:9000/ -Dsonar.login=$SONAR_TOKEN
+    - echo "Uploading Trivy scan report to S3..."
+    - cd ../..
+    - ls -l trivyimage.txt
+    - aws s3 cp trivyimage.txt s3://my-ews-baket19090/
+    # - aws ses send-email --from "madithati123@gmail.com" --to "madithatisreedhar123@gmail.com" --subject "CodeBuild Status: $CODEBUILD_BUILD_ID" --text "Build status: $CODEBUILD_BUILD_STATUS" --region "ap-south-1"
+
 
 artifacts:
   files:
