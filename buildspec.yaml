@@ -52,9 +52,7 @@ phases:
 
 
       
-      - echo "Performing Trivy image scan after building the image..."
-      - trivy image "$DOCKER_REGISTRY_URL/$DOCKER_REGISTRY_USERNAME/swiggy:latest" >> trivyimage.txt
-      - aws s3 cp trivyimage.txt s3://my-ews-baket19090/
+ 
 
   build:
     commands:
@@ -63,6 +61,9 @@ phases:
       - echo "$DOCKER_REGISTRY_PASSWORD" | docker login -u "$DOCKER_REGISTRY_USERNAME" --password-stdin "$DOCKER_REGISTRY_URL"
       - docker build -t "$DOCKER_REGISTRY_URL/$DOCKER_REGISTRY_USERNAME/swiggy:latest" .
       - docker push "$DOCKER_REGISTRY_URL/$DOCKER_REGISTRY_USERNAME/swiggy:latest"
+      - echo "Performing Trivy image scan after building the image..."
+      - trivy image "$DOCKER_REGISTRY_URL/$DOCKER_REGISTRY_USERNAME/swiggy:latest" >> trivyimage.txt
+      - aws s3 cp trivyimage.txt s3://my-ews-baket19090/
 
 post_build:
   commands:
